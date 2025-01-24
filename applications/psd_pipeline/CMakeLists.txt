@@ -8,6 +8,7 @@ find_package(holoscan 2.5.0 REQUIRED CONFIG
              PATHS "/opt/nvidia/holoscan" "/workspace/holoscan-sdk/install")
 
 set(CMAKE_CUDA_ARCHITECTURES "70;80;90")
+set(CMAKE_BUILD_TYPE "Debug")
 enable_language(CUDA)
 
 add_subdirectory(advanced_network_connectors)

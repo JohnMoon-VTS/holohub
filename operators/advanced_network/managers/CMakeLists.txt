@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 cmake_minimum_required(VERSION 3.20)
+set(CMAKE_BUILD_TYPE "Debug")
 
 # Define targets for each manager type
 foreach(MGR IN LISTS ANO_MGR_LIST)
