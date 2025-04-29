@@ -1,0 +1,47 @@
+{
+    "operator": {
+        "name": "file_reader",
+        "authors": [
+            {
+                "name": "Dana Kimball <dana.kimball@vts-i.com>",
+                "affiliation": "Valley Tech Systems, Inc."
+            },
+            {
+                "name": "John Moon <john.moon@vts-i.com>",
+                "affiliation": "Valley Tech Systems, Inc."
+            }
+        ],
+        "language": "C++",
+        "version": "1.0.0",
+        "changelog": {
+            "1.0": "Initial Release"
+        },
+        "holoscan_sdk": {
+            "minimum_required_version": "2.5.0",
+            "tested_versions": [
+                "2.5.0",
+                "2.6.0",
+                "2.7.0",
+                "2.8.0",
+                "2.9.0",
+                "3.0.0",
+                "3.1.0"
+            ]
+        },
+        "platforms": [
+            "amd64"
+        ],
+        "tags": [
+            "SDR",
+            "DSP"
+        ],
+        "ranking": 3,
+        "dependencies": {
+            "libraries": [{
+              "name": "MatX",
+              "version": "0.9.0",
+              "url": "https://github.com/NVIDIA/MatX.git"
+            }]
+        }
+    }
+}
