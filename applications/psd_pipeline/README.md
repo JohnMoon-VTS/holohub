@@ -197,3 +197,22 @@ Once you are in the dev container:
     ```bash
     ./run launch psd_pipeline --extra_args config.yaml
     ```
+
+## Running with the file reader
+
+To test the pipeline without ANO-capable hardware, you may use the file reader operator
+bundled with this app.
+
+In the config file, set:
+
+```yaml
+use_file_reader_input: true
+```
+
+Then, verify the settings under `file_reader`. You need to add data files under
+`build/psd_pipeline/` for the file reader to load. For example, after building,
+but before running, you could run the following to produce random data:
+
+```bash
+dd if=/dev/urandom bs=$((20480 * 4)) count=625 of=build/psd_pipeline/IQ_Data_128MSPS.dat
+```

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #include "advanced_network_connectors/vita49_rx.h"
+#include <file_reader.hpp>
 #include <fft.hpp>
 #include <high_rate_psd.hpp>
 #include <low_rate_psd.hpp>
@@ -15,16 +16,7 @@ class PsdPipeline : public holoscan::Application {
     void compose() override {
         using namespace holoscan;
 
-        auto adv_net_config = from_config("advanced_network").as<NetworkConfig>();
-        if (adv_net_init(adv_net_config) != Status::SUCCESS) {
-            HOLOSCAN_LOG_ERROR("Failed to configure the Advanced Network manager");
-            exit(1);
-        }
-        HOLOSCAN_LOG_INFO("Configured the Advanced Network manager");
-
-        auto vitaConnectorOp = make_operator<ops::Vita49ConnectorOpRx>(
-            "vitaConnectorOp",
-            from_config("vita_connector"));
+        const bool use_file_reader_input = from_config("use_file_reader_input").as<bool>();
 
         auto fftOp = make_operator<ops::FFT>(
             "fftOp",
@@ -43,15 +35,49 @@ class PsdPipeline : public holoscan::Application {
             from_config("vita49_psd_packetizer"),
             make_condition<CountCondition>(from_config("num_psds").as<int64_t>()));
 
-        add_operator(vitaConnectorOp);
         add_operator(fftOp);
         add_operator(highRatePsdOp);
         add_operator(lowRatePsdOp);
         add_operator(packetizerOp);
-        add_flow(vitaConnectorOp, fftOp);
         add_flow(fftOp, highRatePsdOp);
         add_flow(highRatePsdOp, lowRatePsdOp);
         add_flow(lowRatePsdOp, packetizerOp);
+
+        std::shared_ptr<Operator> inputOp;
+        if (use_file_reader_input) {
+            const auto sample_rate = from_config("file_reader.sample_rate_sps").as<uint64_t>();
+            const auto burst_size = from_config("file_reader.burst_size").as<uint64_t>();
+            const auto num_bursts = from_config("file_reader.num_bursts").as<uint64_t>();
+            const auto num_channels = from_config("file_reader.num_channels").as<uint64_t>();
+            const auto read_rate = sample_rate * num_channels / (burst_size * num_bursts);
+
+            auto file_reader_rate_hz = std::to_string(read_rate) + std::string("Hz");
+            HOLOSCAN_LOG_INFO("File reader rate: {}", file_reader_rate_hz);
+
+            auto fileReaderOp = make_operator<ops::FileReader>(
+                "fileReader",
+                from_config("file_reader"),
+                make_condition<PeriodicCondition>("periodic-condition",
+                                                    Arg("recess_period") = file_reader_rate_hz));
+
+            add_operator(fileReaderOp);
+            inputOp = fileReaderOp;
+        } else {
+            auto adv_net_config = from_config("advanced_network").as<NetworkConfig>();
+            if (adv_net_init(adv_net_config) != Status::SUCCESS) {
+                HOLOSCAN_LOG_ERROR("Failed to configure the Advanced Network manager");
+                exit(1);
+            }
+            HOLOSCAN_LOG_INFO("Configured the Advanced Network manager");
+
+            auto vitaConnectorOp = make_operator<ops::Vita49ConnectorOpRx>(
+                "vitaConnectorOp",
+                from_config("vita_connector"));
+            add_operator(vitaConnectorOp);
+            inputOp = vitaConnectorOp;
+        }
+
+        add_flow(inputOp, fftOp);
 
 #ifdef WRITE_DATA
         auto dataWriterOp = make_operator<ops::DataWriter>(

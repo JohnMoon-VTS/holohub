@@ -13,6 +13,7 @@ enable_language(CUDA)
 
 add_subdirectory(advanced_network_connectors)
 add_subdirectory(data_writer)
+add_subdirectory(file_reader)
 
 add_executable(psd_pipeline
   main.cpp
@@ -27,6 +28,7 @@ target_link_libraries(psd_pipeline PRIVATE
   holoscan::ops::low_rate_psd
   holoscan::ops::vita49_psd_packetizer
   holoscan::ops::data_writer
+  holoscan::ops::file_reader
   advanced_network_connectors
 )
 target_include_directories(psd_pipeline PRIVATE

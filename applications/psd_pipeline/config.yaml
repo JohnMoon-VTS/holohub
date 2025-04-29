@@ -4,6 +4,7 @@
 # Number of PSDs to produce before exiting
 # -1: run indefinitely
 num_psds: -1
+use_file_reader_input: true
 
 scheduler:
   worker_thread_number: 4
@@ -270,6 +271,29 @@ vita_connector:
   num_ffts_per_batch: 625
   num_simul_batches: 2
   num_channels: 4
+
+file_reader:
+  file_names: [
+    "IQ_Data_128MSPS.dat",
+    "IQ_Data_128MSPS.dat",
+    "IQ_Data_128MSPS.dat",
+    "IQ_Data_128MSPS.dat",
+  ]
+  num_channels: 4
+  stream_id: 1
+  burst_size: 20480
+  num_bursts: 625
+  rf_ref_freq_hz: [
+    100000000,
+    500000000,
+    750000000,
+    900000000,
+  ]
+  bandwidth_hz: 100000000
+  sample_rate_sps: 128000000
+  ref_level_dbm: 0
+  gain_db: -10
+  float_input: false
 
 fft:
   burst_size: 20480
