@@ -49,6 +49,10 @@ void LowRatePSD::compute(InputContext& op_input, OutputContext& op_output, Execu
 
     meta->set("num_averages", num_averages.get());
 
+    // Run sync before emitting to packetizer
+    // WARNING - do not merge: this causes memory leaks
+    cudaStreamSynchronize(std::get<1>(input));
+
     op_output.emit(out_t {out}, "out");
 }
 }  // namespace holoscan::ops
